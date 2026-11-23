@@ -10,64 +10,64 @@ const GRAV = 1.05;
 const ROUND_TIME = 120;
 const POSES = ['idle','walk1','walk2','punch','kick','block','hit','special','jump','ko','crouch','uppercut','sweep','win'];
 const ARROW = { F: '→', B: '←', D: '↓', U: '↑' };
-const BTN = { A: 'GOLPE', B: 'FORTE' };
+const BTN = { A: 'GOLPE', B: 'FORTE', AB: 'GOLPE ou FORTE' };
 
 // ---------------- Personagens ----------------
 const CHARS = [
   { id: 'liukang', name: 'Liu Kapivarang', g: 'ELE', col: '#ff5a3a', speed: 1.06, power: 1.0, def: 1.0, hw: 50,
     bio: 'Monge da Lagoa Sagrada. Defende seu lar com chutes de fogo e muita paciência de capivara.',
     specials: [
-      { seq: 'FF', btn: 'A', name: 'Bola de Fogo', type: 'proj', proj: 'fire' },
-      { seq: 'FF', btn: 'B', name: 'Voadora do Dragão', type: 'dash', pose: 'kick', spd: 17, frames: 26, dmg: 12, lift: 34, hy: [0.3, 0.85], kd: true },
+      { seq: 'FF', btn: 'AB', name: 'Bola de Fogo', type: 'proj', proj: 'fire' },
+      { seq: 'BF', btn: 'AB', name: 'Voadora do Dragão', type: 'dash', pose: 'kick', spd: 17, frames: 26, dmg: 12, lift: 34, hy: [0.3, 0.85], kd: true },
     ],
     fatal: { seq: 'FDF', btn: 'B', name: 'Dragão de Fogo', kind: 'burn', col: '#ff7a1a' } },
   { id: 'kitana', name: 'Kitapivarana', g: 'ELA', col: '#4aa8ff', speed: 1.1, power: 0.95, def: 1.0, hw: 46,
     bio: 'Princesa das Sete Lagoas, com leques de aço afiados como capim seco.',
     specials: [
-      { seq: 'FF', btn: 'A', name: 'Leque Cortante', type: 'proj', proj: 'fan' },
-      { seq: 'BB', btn: 'A', name: 'Leque Levitador', type: 'proj', proj: 'wind' },
+      { seq: 'FF', btn: 'AB', name: 'Leque Cortante', type: 'proj', proj: 'fan' },
+      { seq: 'BF', btn: 'AB', name: 'Leque Levitador', type: 'proj', proj: 'wind' },
     ],
     fatal: { seq: 'DDF', btn: 'B', name: 'Corte Real', kind: 'slice', col: '#7fd0ff' } },
   { id: 'sonia', name: 'Kapivaronya Blade', g: 'ELA', col: '#9fd34a', speed: 1.08, power: 1.0, def: 1.0, hw: 46,
     bio: 'Tenente das Forças Especiais. Caçadora de bandidos e mestre em anéis de energia.',
     specials: [
-      { seq: 'DB', btn: 'A', name: 'Anéis de Energia', type: 'proj', proj: 'ring' },
-      { seq: 'BF', btn: 'B', name: 'Soco Quadrado', type: 'dash', pose: 'punch', spd: 15, frames: 28, dmg: 11, lift: 120, hy: [0.45, 1.0], kd: true },
+      { seq: 'FF', btn: 'AB', name: 'Anéis de Energia', type: 'proj', proj: 'ring' },
+      { seq: 'BF', btn: 'AB', name: 'Soco Quadrado', type: 'dash', pose: 'punch', spd: 15, frames: 28, dmg: 11, lift: 120, hy: [0.45, 1.0], kd: true },
     ],
     fatal: { seq: 'FFD', btn: 'B', name: 'Beijo Ardente', kind: 'burn', col: '#ff5ad1' } },
   { id: 'milena', name: 'Kapivarelena', g: 'ELA', col: '#ff4fb0', speed: 1.12, power: 0.97, def: 1.0, hw: 46,
     bio: 'Clone selvagem criada no Brejo Sombrio. Sorriso escondido, sais dourados e zero paciência.',
     specials: [
-      { seq: 'FF', btn: 'A', name: 'Sai Voador', type: 'proj', proj: 'sai' },
-      { seq: 'FF', btn: 'B', name: 'Teleporte Chute', type: 'tele', mode: 'above', dmg: 11 },
+      { seq: 'FF', btn: 'AB', name: 'Sai Voador', type: 'proj', proj: 'sai' },
+      { seq: 'BF', btn: 'AB', name: 'Teleporte Chute', type: 'tele', mode: 'above', dmg: 11 },
     ],
     fatal: { seq: 'BBD', btn: 'B', name: 'Explosão Rosa', kind: 'shatter', col: '#ff4fb0' } },
   { id: 'scorpion', name: 'Toco do Pantanal', g: 'ELE', col: '#3eea6a', speed: 1.04, power: 1.02, def: 1.0, hw: 50, hue: 90,
     bio: 'Capivara lanterna do Pantanal. Amarra o adversário no cipó e não larga até o fim da briga.',
     specials: [
-      { seq: 'BB', btn: 'A', name: 'Cipó Enleado', type: 'proj', proj: 'spear' },
-      { seq: 'DB', btn: 'B', name: 'Pulada do Junco', type: 'tele', mode: 'behind', dmg: 10 },
+      { seq: 'FF', btn: 'AB', name: 'Cipó Enleado', type: 'proj', proj: 'spear' },
+      { seq: 'BF', btn: 'AB', name: 'Pulada do Junco', type: 'tele', mode: 'behind', dmg: 10 },
     ],
     fatal: { seq: 'DDB', btn: 'B', name: 'Bafo do Brejo', kind: 'burn', col: '#5dff7a' } },
   { id: 'subzero', name: 'Nuvem da Serra', g: 'ELE', col: '#c89cff', speed: 1.02, power: 1.0, def: 1.02, hw: 50, hue: 80,
     bio: 'Guardião das serras frias. Cobre o chão de neblina e some por baixo do adversário.',
     specials: [
-      { seq: 'DF', btn: 'A', name: 'Nevoeiro', type: 'proj', proj: 'ice' },
-      { seq: 'BB', btn: 'B', name: 'Escorregão da Serra', type: 'dash', pose: 'sweep', spd: 15, frames: 26, dmg: 9, lift: 0, hy: [0, 0.35], kd: true },
+      { seq: 'FF', btn: 'AB', name: 'Nevoeiro', type: 'proj', proj: 'ice' },
+      { seq: 'BF', btn: 'AB', name: 'Escorregão da Serra', type: 'dash', pose: 'sweep', spd: 15, frames: 26, dmg: 9, lift: 0, hy: [0, 0.35], kd: true },
     ],
     fatal: { seq: 'FDF', btn: 'B', name: 'Estilhaço de Geada', kind: 'shatter', col: '#e0b0ff' } },
   { id: 'motaro', name: 'Kapivotaro', g: 'ELE', col: '#ff8a3a', speed: 0.86, power: 1.22, def: 0.82, hw: 70, boss: true,
     bio: 'Sub-chefe centauro-capivara de quatro braços. Quatro punhos, uma cauda e nenhum perdão.',
     specials: [
-      { seq: 'FF', btn: 'A', name: 'Fogo da Cauda', type: 'proj', proj: 'hellfire' },
-      { seq: 'DF', btn: 'B', name: 'Pisão Teleporte', type: 'tele', mode: 'stomp', dmg: 15 },
+      { seq: 'FF', btn: 'AB', name: 'Fogo da Cauda', type: 'proj', proj: 'hellfire' },
+      { seq: 'BF', btn: 'AB', name: 'Pisão Teleporte', type: 'tele', mode: 'stomp', dmg: 15 },
     ],
     fatal: { seq: 'FFF', btn: 'B', name: 'Esmagamento Quádruplo', kind: 'shatter', col: '#ff7a1a' } },
   { id: 'shang', art: 'liukang', name: 'Shang Kapivatsung', g: 'ELE', col: '#70f0b4', speed: 1, power: 1.05, def: 1.04, hw: 50,
     bio: 'Feiticeiro do Brejo Sombrio. Canaliza a névoa da lagoa para fazer suas magias.',
     specials: [
-      { seq: 'DF', btn: 'A', name: 'Orbe do Brejo', type: 'proj', proj: 'mist' },
-      { seq: 'FB', btn: 'B', name: 'Passo Fantasma', type: 'tele', mode: 'behind', dmg: 10 },
+      { seq: 'FF', btn: 'AB', name: 'Orbe do Brejo', type: 'proj', proj: 'mist' },
+      { seq: 'BF', btn: 'AB', name: 'Passo Fantasma', type: 'tele', mode: 'behind', dmg: 10 },
     ],
     fatal: { seq: 'BDF', btn: 'B', name: 'Névoa Espectral', kind: 'shatter', col: '#70f0b4' } },
 ];
@@ -80,6 +80,15 @@ function hueFilter(c) {
 function applyHue(el, c) {
   if (!el) return;
   el.style.filter = hueFilter(c);
+}
+function seqArrows(seq) {
+  if (seq === 'FF') return '→ →';
+  if (seq === 'BF') return '← →';
+  return seq.split('').map(d => ARROW[d]).join(' ');
+}
+function magicLine(s) {
+  const side = s.seq === 'FF' ? 'Pra frente' : s.seq === 'BF' ? 'Pra trás' : 'Magia';
+  return `${side}: ${s.name} — ${seqArrows(s.seq)} + ${BTN[s.btn] || 'GOLPE ou FORTE'}`;
 }
 
 const PROJ = {
@@ -519,7 +528,7 @@ class Fighter {
   reset() {
     this.x = this.side === 0 ? 400 : W - 400; this.y = 0; this.vx = 0; this.vy = 0;
     this.facing = this.side === 0 ? 1 : -1;
-    this.maxHp = (ctrl instanceof HumanCtrl && UI.diff === 0) ? 140 : 100;
+    this.maxHp = (this.ctrl instanceof HumanCtrl && UI.diff === 0) ? 140 : 100;
     this.hp = this.maxHp; this.dispHp = this.maxHp;
     this.setState('idle');
     this.buf = []; this.prev = {}; this.combo = 0; this.flash = 0; this.alpha = 1;
@@ -550,15 +559,17 @@ class Fighter {
     if (this.buf.length > 8) this.buf.shift();
     this.prev = { l: i.l, r: i.r, u: i.u, d: i.d };
   }
-  matchSeq(seq, window = 40) {
+  matchSeq(seq, window = 30) {
     const n = seq.length, b = this.buf;
     if (b.length < n) return false;
     const tail = b.slice(-n);
     if (tail.map(e => e.d).join('') !== seq) return false;
-    return (Game.frameNo - tail[0].f) <= window + n * 6;
+    return (Game.frameNo - tail[0].f) <= window;
   }
   findSpecial(btn) {
-    const sp = this.ch.specials.map((s, k) => ({ s, k })).filter(o => o.s.btn === btn).sort((a, b) => b.s.seq.length - a.s.seq.length);
+    const sp = this.ch.specials.map((s, k) => ({ s, k }))
+      .filter(o => !o.s.btn || o.s.btn === btn || o.s.btn === 'AB')
+      .sort((a, b) => b.s.seq.length - a.s.seq.length);
     for (const o of sp) if (this.matchSeq(o.s.seq)) return o.k;
     return -1;
   }
@@ -1351,42 +1362,97 @@ window.addEventListener('orientationchange', () => setTimeout(layout, 200));
 
 // ---------------- Controles touch ----------------
 function setupTouch() {
-  const pad = $('#pad'), knob = $('#pad-knob');
-  let padId = null;
-  const setDir = (cx, cy) => {
-    const r = pad.getBoundingClientRect();
-    let dx = cx - (r.left + r.width / 2), dy = cy - (r.top + r.height / 2);
-    const R = r.width / 2, len = Math.hypot(dx, dy);
-    const dead = R * 0.22;
+  const dpad = $('#dpad');
+  const held = new Map();
+  const applyDpad = () => {
     const was = { l: Touch.l, r: Touch.r, u: Touch.u, d: Touch.d };
     Touch.l = Touch.r = Touch.u = Touch.d = false;
-    if (len > dead) {
-      const a = Math.atan2(dy, dx) * 180 / Math.PI; // -180..180, 0 = direita, 90 = baixo
-      if (a > -67.5 && a < 67.5) Touch.r = true;
-      if (a > 112.5 || a < -112.5) Touch.l = true;
-      if (a > 22.5 && a < 157.5) Touch.d = true;
-      if (a < -22.5 && a > -157.5) Touch.u = true;
+    for (const v of held.values()) {
+      if (v.l) Touch.l = true;
+      if (v.r) Touch.r = true;
+      if (v.u) Touch.u = true;
+      if (v.d) Touch.d = true;
     }
-    for (const k of ['l', 'r', 'u', 'd']) if (Touch[k] && !was[k]) Touch.tap[k] = true;
-    const k = Math.min(1, len / R) * R * 0.55, ang = Math.atan2(dy, dx);
-    knob.style.transform = len > 2 ? `translate(${Math.cos(ang) * k}px,${Math.sin(ang) * k}px)` : '';
+    for (const k of ['l', 'r', 'u', 'd']) {
+      if (Touch[k] && !was[k]) Touch.tap[k] = true;
+      const el = dpad && dpad.querySelector('.dir[data-dir="' + k + '"]');
+      if (el) el.classList.toggle('on', Touch[k]);
+    }
   };
-  const release = () => { padId = null; Touch.l = Touch.r = Touch.u = Touch.d = false; knob.style.transform = ''; };
-  pad.addEventListener('pointerdown', e => { e.preventDefault(); if (padId !== null) return; Audio.init(); padId = e.pointerId; pad.setPointerCapture(e.pointerId); setDir(e.clientX, e.clientY); });
-  pad.addEventListener('pointermove', e => { if (e.pointerId === padId) setDir(e.clientX, e.clientY); });
-  pad.addEventListener('pointerup', e => { if (e.pointerId === padId) release(); });
-  for (const event of ['pointercancel','lostpointercapture']) pad.addEventListener(event, e => { if (e.pointerId === padId) release(); });
+  const dirsFromPoint = (x, y) => {
+    const r = dpad.getBoundingClientRect();
+    const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+    const dead = Math.min(r.width, r.height) * 0.16;
+    const dirs = { l: false, r: false, u: false, d: false };
+    if (Math.hypot(dx, dy) > dead) {
+      const ax = Math.abs(dx), ay = Math.abs(dy);
+      const diag = Math.min(ax, ay) > dead * 0.5;
+      if (dx < -dead || (diag && dx < 0)) dirs.l = true;
+      if (dx > dead || (diag && dx > 0)) dirs.r = true;
+      if (dy < -dead || (diag && dy < 0)) dirs.u = true;
+      if (dy > dead || (diag && dy > 0)) dirs.d = true;
+    }
+    return dirs;
+  };
+  const idOf = ev => ev.pointerId != null ? 'p' + ev.pointerId : 't' + (ev.identifier != null ? ev.identifier : 0);
+  const point = ev => ev.clientX != null ? ev : ev.changedTouches ? ev.changedTouches[0] : ev.touches && ev.touches[0];
+  if (dpad) {
+    const down = ev => {
+      ev.preventDefault();
+      Audio.init();
+      try { ev.pointerId != null && dpad.setPointerCapture && dpad.setPointerCapture(ev.pointerId); } catch (err) {}
+      const pt = point(ev); if (!pt) return;
+      held.set(idOf(ev.pointerId != null ? ev : pt), dirsFromPoint(pt.clientX, pt.clientY));
+      applyDpad();
+    };
+    const move = ev => {
+      const pt = point(ev); if (!pt) return;
+      const id = idOf(ev.pointerId != null ? ev : pt);
+      if (!held.has(id) && !held.has('t' + (pt.identifier || 0))) return;
+      held.set(held.has(id) ? id : 't' + (pt.identifier || 0), dirsFromPoint(pt.clientX, pt.clientY));
+      applyDpad();
+    };
+    const up = ev => {
+      const pt = point(ev);
+      held.delete(idOf(ev.pointerId != null ? ev : pt || ev));
+      if (pt) held.delete('t' + (pt.identifier || 0));
+      applyDpad();
+    };
+    for (const ev of ['pointerdown', 'mousedown', 'touchstart']) dpad.addEventListener(ev, down, { passive: false });
+    for (const ev of ['pointermove', 'mousemove', 'touchmove']) dpad.addEventListener(ev, move, { passive: false });
+    for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture', 'mouseup', 'touchend', 'touchcancel']) dpad.addEventListener(ev, up);
+    dpad.addEventListener('contextmenu', ev => ev.preventDefault());
+  }
   for (const b of $$('.tb')) {
     const k = b.dataset.k;
-    const down = e => { e.preventDefault(); Audio.init(); b.setPointerCapture && b.setPointerCapture(e.pointerId); b.classList.add('on'); if (k === 'block') Touch.block = true; else Touch[k] = 2; };
-    const up = e => { b.classList.remove('on'); if (k === 'block') Touch.block = false; };
-    b.addEventListener('pointerdown', down);
-    b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
-    b.addEventListener('click', e => { if (e.detail === 0 && k !== 'block') Touch[k] = 2; });
-    b.addEventListener('contextmenu', e => e.preventDefault());
+    const down = ev => {
+      ev.preventDefault();
+      Audio.init();
+      try { ev.pointerId != null && b.setPointerCapture && b.setPointerCapture(ev.pointerId); } catch (err) {}
+      b.classList.add('on');
+      if (k === 'block') Touch.block = true; else Touch[k] = 2;
+    };
+    const up = ev => { b.classList.remove('on'); if (k === 'block') Touch.block = false; };
+    for (const ev of ['pointerdown', 'mousedown', 'touchstart']) b.addEventListener(ev, down, { passive: false });
+    for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture', 'mouseup', 'touchend', 'touchcancel']) b.addEventListener(ev, up);
+    b.addEventListener('click', ev => { if (ev.detail === 0 && k !== 'block') Touch[k] = 2; });
+    b.addEventListener('contextmenu', ev => ev.preventDefault());
   }
-  $('#touch').addEventListener('contextmenu', e => e.preventDefault());
-  window.addEventListener('blur', () => { release(); Object.assign(Touch, {block: false, A: 0, B: 0, tap: {}}); $$('.tb.on').forEach(b => b.classList.remove('on')); });
+  const root = $('#touch');
+  if (root) {
+    root.addEventListener('contextmenu', ev => ev.preventDefault());
+    root.addEventListener('touchstart', ev => ev.preventDefault(), { passive: false });
+    root.addEventListener('touchmove', ev => ev.preventDefault(), { passive: false });
+  }
+  const blockZoom = ev => { if (ev.touches && ev.touches.length > 1) ev.preventDefault(); };
+  document.addEventListener('touchstart', blockZoom, { passive: false });
+  document.addEventListener('touchmove', ev => { if (document.body.classList.contains('fighting') || (ev.touches && ev.touches.length > 1)) ev.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturestart', ev => ev.preventDefault());
+  window.addEventListener('blur', () => {
+    held.clear(); applyDpad();
+    Object.assign(Touch, { block: false, A: 0, B: 0, tap: {} });
+    $$('.tb.on').forEach(b => b.classList.remove('on'));
+  });
 }
 
 // ---------------- Interface / Telas ----------------
@@ -1442,7 +1508,7 @@ const UI = {
   resume() { Game.paused = false; document.body.classList.remove('paused'); this.closeOverlay('pause'); this.screen = null; $('#btn-pause').blur(); },
   openHelp(ch, ret) {
     this.helpReturn = ret;
-    const mv = c => `<div class="blk"><h3>${c.name}</h3>${c.specials.map(s => `<div class="mv"><span>${s.name}</span><span>${s.seq.split('').map(d => ARROW[d]).join(' ')} + ${BTN[s.btn]}</span></div>`).join('')}<div class="mv fat"><span>Golpe final: ${c.fatal.name}</span><span>${c.fatal.seq.split('').map(d => ARROW[d]).join(' ')} + ${BTN[c.fatal.btn]}</span></div></div>`;
+    const mv = c => `<div class="blk"><h3>${c.name}</h3>${c.specials.map(s => `<div class="mv"><span>${magicLine(s)}</span></div>`).join('')}<div class="mv fat"><span>Golpe final: ${c.fatal.name}</span><span>${seqArrows(c.fatal.seq)} + ${BTN[c.fatal.btn]}</span></div></div>`;
     const ctrls = `<div class="blk"><h3>TECLADO (1 JOGADOR)</h3>
       <div class="mv"><span>Mover / pular / agachar</span><span><kbd>←↑→↓</kbd> ou <kbd>WASD</kbd></span></div>
       <div class="mv"><span>Golpe</span><span><kbd>J</kbd> ou <kbd>Z</kbd></span></div>
@@ -1506,12 +1572,12 @@ const UI = {
     applyHue($('#sel-p1-img'), c1);
     $('#sel-p1-img').classList.toggle('spectral', !!c1.art);
     $('#sel-p1-name').textContent = c1.name;
-    $('#sel-p1-moves').innerHTML = c1.specials.map(m => `${m.name}: <b>${m.seq.split('').map(d => ARROW[d]).join('')}+${BTN[m.btn]}</b>`).join('<br>');
+    $('#sel-p1-moves').innerHTML = c1.specials.map(m => magicLine(m)).join('<br>');
     const showP2 = s.mode !== 'arcade' && (s.active === 1 || s.mode === '2p');
     $('#sel-p2-img').style.visibility = showP2 ? 'visible' : 'hidden';
     $('#sel-p2-name').textContent = showP2 ? CHARS[s.cur[1]].name : (s.mode === 'arcade' ? '' : '');
     if (s.mode === 'arcade') { $('#sel-p2-moves').innerHTML = `<b>${c1.bio}</b>`; $('#sel-p2-moves').style.maxWidth = '300px'; }
-    else if (showP2) { const c2 = CHARS[s.cur[1]]; $('#sel-p2-img').src = spritePath(c2, s.lock[1] != null ? 'win' : 'idle'); applyHue($('#sel-p2-img'), c2); $('#sel-p2-moves').innerHTML = c2.specials.map(m => `${m.name}: <b>${m.seq.split('').map(d => ARROW[d]).join('')}+${BTN[m.btn]}</b>`).join('<br>'); }
+    else if (showP2) { const c2 = CHARS[s.cur[1]]; $('#sel-p2-img').src = spritePath(c2, s.lock[1] != null ? 'win' : 'idle'); applyHue($('#sel-p2-img'), c2); $('#sel-p2-moves').innerHTML = c2.specials.map(m => magicLine(m)).join('<br>'); }
     else $('#sel-p2-moves').innerHTML = '';
     if (s.mode === 'versus') $('#sel-head').textContent = s.active === 0 ? 'ESCOLHA SEU LUTADOR' : 'ESCOLHA O ADVERSÁRIO';
   },
