@@ -212,3 +212,10 @@ body.touchdev.fighting #ctrl-hint{top:86px;white-space:normal;max-width:90vw;tex
   .menu-hint{font-size:16px;padding:0 12px}
   #ctrl-hint{white-space:normal;max-width:92vw;font-size:15px;top:78px}
 }
+
+.diff-opts{display:inline-flex;align-items:baseline;gap:8px;flex-wrap:wrap;justify-content:flex-end;color:#b08b5c;font-size:30px;letter-spacing:1px}
+.diff-opts i{font-style:normal;color:#6b4a28}
+.diff-opts .on{color:#ffcf5a;font-weight:700}
+@media (max-width:700px){
+  .diff-opts{font-size:clamp(16px,4.6vw,26px);gap:5px}
+}

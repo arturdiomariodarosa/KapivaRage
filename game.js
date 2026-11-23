@@ -284,8 +284,134 @@ class HumanCtrl {
 
 // ---------------- IA ----------------
 class CpuCtrl {
-  constructor(level) { this.lv = level; this.hold = null; this.holdT = 0; this.cool = 0; this.blockT = 0; this.fatT = 0; }
+  constructor(level, style) {
+    this.lv = level;
+    this.style = style || 'easy';
+    this.hold = null; this.holdT = 0; this.cool = 0; this.blockT = 0; this.fatT = 0;
+    this.flow = 1; this.flowT = 0;
+  }
   read(me, game) {
+    if (this.style === 'hard') return this.readOriginalEasy(me, game);
+    if (this.style === 'normal') return this.readNormal(me, game);
+    return this.readEasy(me, game);
+  }
+  // Cópia exata da IA Fácil original do Mortal Komcapivara (usada no Difícil).
+  readOriginalEasy(me, game) {
+    const o = me.opp, lv = this.lv;
+    const i = { l: false, r: false, u: false, d: false, block: false, A: false, B: false, special: null, fatal: false };
+    const dx = o.x - me.x, dist = Math.abs(dx), toward = dx > 0 ? 'r' : 'l', away = dx > 0 ? 'l' : 'r';
+    if (game.phase === 'finish') {
+      if (game.winner === me) {
+        this.fatT++;
+        if (this.fatT === 50 && Math.random() < 0.35 + lv * 0.5) { i.fatal = true; return i; }
+        if (this.fatT > 70) { if (dist > 140) i[toward] = true; else if (this.fatT % 30 === 0) i.B = true; }
+      }
+      return i;
+    }
+    if (game.phase !== 'fight') return i;
+    if (this.blockT > 0) { this.blockT--; i.block = true; if (me.state === 'crouch' || me.state === 'crouchblock') i.d = true; return i; }
+    // Reagir a ataques
+    const threat = (o.att && o.t < o.att.start + o.att.act + 2 && dist < (o.att.reach || 160) + 60) ||
+      (o.state === 'dash' && dist < 320) || (o.state === 'tele');
+    const proj = game.projs.find(p => p.owner === o && Math.abs(p.x - me.x) < 260 && Math.sign(me.x - p.x) === Math.sign(p.vx));
+    if (me.canAct()) {
+      if (threat && Math.random() < 0.08 + lv * 0.55) { this.blockT = 10 + (Math.random() * 14 | 0); i.block = true; return i; }
+      if (proj && Math.random() < 0.05 + lv * 0.35) {
+        const r = Math.random();
+        if (r < 0.45) { this.blockT = 16; i.block = true; return i; }
+        if (r < 0.75) { i.u = true; i[toward] = true; return i; }
+        this.hold = 'd'; this.holdT = 22; i.d = true; return i;
+      }
+      if (o.y > 60 && dist < 200 && o.vy < 2 && Math.random() < 0.05 + lv * 0.25) { i.d = true; i.B = true; return i; } // anti-aéreo
+    }
+    if (this.holdT > 0) { this.holdT--; if (this.hold) i[this.hold === 'toward' ? toward : this.hold === 'away' ? away : this.hold] = true; return i; }
+    if (this.cool > 0) { this.cool--; return i; }
+    if (!me.canAct()) return i;
+    const react = Math.max(3, 18 - lv * 14);
+    this.cool = (react + Math.random() * react) | 0;
+    const r = Math.random();
+    const hasProj = game.projs.some(p => p.owner === me);
+    if (dist > 420) {
+      if (r < 0.25 + lv * 0.2 && !hasProj) { i.special = 0; return i; }
+      if (r < 0.5) { this.hold = 'toward'; this.holdT = 20 + (Math.random() * 25 | 0); return i; }
+      if (r < 0.62) { i.u = true; i[toward] = true; return i; }
+      if (r < 0.72) { i.special = 1; return i; }
+      this.hold = 'toward'; this.holdT = 30; return i;
+    }
+    if (dist > 175) {
+      if (r < 0.14 + lv * 0.1 && !hasProj) { i.special = 0; return i; }
+      if (r < 0.26) { i.special = 1; return i; }
+      if (r < 0.42) { i.u = true; i[toward] = true; me.cpuAirAtk = true; return i; }
+      if (r < 0.85) { this.hold = 'toward'; this.holdT = 10 + (Math.random() * 16 | 0); return i; }
+      this.hold = 'away'; this.holdT = 12; return i;
+    }
+    // curta distância
+    if (r < 0.32) { i.A = true; return i; }
+    if (r < 0.52) { i.B = true; return i; }
+    if (r < 0.62) { i.d = true; i.A = true; return i; }
+    if (r < 0.70) { i.d = true; i.B = true; return i; }
+    if (r < 0.78) { this.blockT = 14; i.block = true; return i; }
+    if (r < 0.86) { this.hold = 'away'; this.holdT = 14; return i; }
+    if (r < 0.92) { i.special = 1; return i; }
+    i.u = true; i[toward] = true; me.cpuAirAtk = true; return i;
+  }
+  tickFlow() {
+    if (this.flowT > 0) { this.flowT--; return; }
+    if (Math.random() >= 0.30) this.flow = this.flow ? 0 : 1;
+    this.flowT = (150 + Math.random() * 240) | 0;
+  }
+  readNormal(me, game) {
+    this.tickFlow();
+    const good = !!this.flow;
+    const o = me.opp;
+    const i = { l: false, r: false, u: false, d: false, block: false, A: false, B: false, special: null, fatal: false };
+    const dx = o.x - me.x, dist = Math.abs(dx), toward = dx > 0 ? 'r' : 'l', away = dx > 0 ? 'l' : 'r';
+    if (game.phase === 'finish') {
+      if (game.winner === me) {
+        this.fatT++;
+        if (this.fatT === 50 && Math.random() < (good ? 0.28 : 0.08)) { i.fatal = true; return i; }
+        if (this.fatT > 70) { if (dist > 140) i[toward] = true; else if (this.fatT % 30 === 0) i.B = true; }
+      }
+      return i;
+    }
+    if (game.phase !== 'fight') return i;
+    if (this.blockT > 0) { this.blockT--; i.block = true; if (me.state === 'crouch' || me.state === 'crouchblock') i.d = true; return i; }
+    const threat = (o.att && o.t < o.att.start + o.att.act + 2 && dist < (o.att.reach || 160) + 60) ||
+      (o.state === 'dash' && dist < 320) || (o.state === 'tele');
+    const proj = game.projs.find(p => p.owner === o && Math.abs(p.x - me.x) < 260 && Math.sign(me.x - p.x) === Math.sign(p.vx));
+    if (me.canAct()) {
+      if (threat && Math.random() < (good ? 0.42 : 0.10)) { this.blockT = 12 + (Math.random() * 14 | 0); i.block = true; return i; }
+      if (proj && Math.random() < (good ? 0.38 : 0.10)) {
+        const r = Math.random();
+        if (r < 0.6) { this.blockT = 16; i.block = true; return i; }
+        if (r < 0.85) { i.u = true; i[toward] = true; return i; }
+        this.hold = 'd'; this.holdT = 22; i.d = true; return i;
+      }
+    }
+    if (this.holdT > 0) { this.holdT--; if (this.hold) i[this.hold === 'toward' ? toward : this.hold === 'away' ? away : this.hold] = true; return i; }
+    if (this.cool > 0) { this.cool--; return i; }
+    if (!me.canAct()) return i;
+    const react = good ? (12 + Math.random() * 12) : (22 + Math.random() * 18);
+    this.cool = react | 0;
+    const r = Math.random();
+    // Ataca pouco e se defende; na fase boa acerta mais defesas, na ruim erra e anda.
+    if (good) {
+      if (r < 0.10) { i.A = true; return i; }
+      if (r < 0.13) { i.B = true; return i; }
+      if (r < 0.16 && dist > 200) { i.special = 0; return i; }
+      if (r < 0.40) { this.blockT = 16 + (Math.random() * 14 | 0); i.block = true; return i; }
+      if (r < 0.54) { i.u = true; if (Math.random() < 0.6) i[toward] = true; return i; }
+      if (r < 0.80) { this.hold = 'toward'; this.holdT = 14 + (Math.random() * 20 | 0); return i; }
+      this.hold = 'away'; this.holdT = 12 + (Math.random() * 16 | 0); return i;
+    }
+    if (r < 0.04) { i.A = true; return i; }
+    if (r < 0.05) { i.B = true; return i; }
+    if (r < 0.14) { this.blockT = 10 + (Math.random() * 10 | 0); i.block = true; return i; }
+    if (r < 0.32) { i.u = true; if (Math.random() < 0.5) i[Math.random() < 0.5 ? toward : away] = true; return i; }
+    if (r < 0.70) { this.hold = Math.random() < 0.5 ? 'toward' : 'away'; this.holdT = 16 + (Math.random() * 28 | 0); return i; }
+    this.hold = 'away'; this.holdT = 18; return i;
+  }
+  readEasy(me, game) {
     const o = me.opp, lv = this.lv;
     const i = { l: false, r: false, u: false, d: false, block: false, A: false, B: false, special: null, fatal: false };
     const dx = o.x - me.x, dist = Math.abs(dx), toward = dx > 0 ? 'r' : 'l', away = dx > 0 ? 'l' : 'r';
@@ -393,7 +519,7 @@ class Fighter {
   reset() {
     this.x = this.side === 0 ? 400 : W - 400; this.y = 0; this.vx = 0; this.vy = 0;
     this.facing = this.side === 0 ? 1 : -1;
-    this.maxHp = (ctrl instanceof HumanCtrl) ? 140 : 100;
+    this.maxHp = (ctrl instanceof HumanCtrl && UI.diff === 0) ? 140 : 100;
     this.hp = this.maxHp; this.dispHp = this.maxHp;
     this.setState('idle');
     this.buf = []; this.prev = {}; this.combo = 0; this.flash = 0; this.alpha = 1;
@@ -873,8 +999,8 @@ const Game = {
     this.combo[k] = inCombo ? this.combo[k] + 1 : 1; this.comboT[k] = 70;
     if (this.combo[k] >= 2) this.text(this.combo[k] + ' GOLPES', src.side === 0 ? '#7fd0ff' : '#ff8a7a', 60, 250);
     let dmg = att.dmg * src.ch.power * dst.ch.def * (inCombo ? 0.85 : 1);
-    if (src.ctrl instanceof CpuCtrl) dmg *= 0.55;
-    if (dst.ctrl instanceof HumanCtrl) dmg *= 0.8;
+    if (src.ctrl instanceof CpuCtrl && src.ctrl.style === 'easy') dmg *= 0.55;
+    if (dst.ctrl instanceof HumanCtrl && UI.diff === 0) dmg *= 0.8;
     this.score[k] += Math.max(1, Math.round(Math.min(dst.hp, dmg) * 10)) + (this.combo[k] > 1 ? 25 : 0);
     dst.hp = Math.max(0, dst.hp - dmg); dst.hitsTaken++;
     dst.flash = 4;
@@ -1285,6 +1411,13 @@ const UI = {
     $('#sel-back').addEventListener('click', () => this.selBack());
     $('#sel-ok').addEventListener('click', () => this.selConfirm(this.sel.mode === '2p' && this.sel.lock[0] != null ? 1 : this.sel.active));
     this.buildGrid();
+    this.paintDiff();
+  },
+  paintDiff() {
+    const names = ['Fácil', 'Normal', 'Difícil'];
+    const box = $('#diff-opts');
+    if (!box) return;
+    box.innerHTML = names.map((n, i) => `<span data-d="${i}" class="${i === this.diff ? 'on' : ''}">${n}</span>`).join('<i>·</i>');
   },
   toMenu() { Audio.init(); Audio.play('confirm'); Audio.startMusic(); this.show('menu'); Game.phase = 'off'; Game.stage = 'bg_arena'; document.body.classList.remove('fighting'); layout(); },
   act(a) {
@@ -1293,7 +1426,7 @@ const UI = {
       case 'arcade': this.openSelect('arcade'); break;
       case 'versus': this.openSelect('versus'); break;
       case '2p': this.openSelect('2p'); break;
-      case 'diff': this.diff = (this.diff + 1) % 3; $('#diff-lbl').textContent = this.diffNames[this.diff]; break;
+      case 'diff': this.diff = (this.diff + 1) % 3; this.paintDiff(); break;
       case 'sound': Audio.setOn(!Audio.on); $('#sound-lbl').textContent = Audio.on ? 'LIGADO' : 'DESLIGADO'; $$('.sound-lbl2').forEach(e => e.textContent = Audio.on ? 'LIGADO' : 'DESLIGADO'); if (Audio.on) Audio.startMusic(); else Audio.stopMusic(); break;
       case 'help': this.openHelp(null, 'menu'); break;
       case 'resume': this.resume(); break;
@@ -1431,11 +1564,14 @@ const UI = {
   },
   startArcadeFight() {
     const A = this.arcade, op = A.ladder[A.idx];
-    const lv = [0.06, 0.18, 0.36][this.diff] + A.idx * 0.02 + (op.boss ? 0.04 : 0);
+    const style = ['easy', 'normal', 'hard'][this.diff];
+    const lv = style === 'hard' ? 0.18 + A.idx * 0.045 + (op.boss ? 0.08 : 0)
+      : style === 'normal' ? 0.14 + A.idx * 0.02
+      : 0.06;
     const stage = op.boss ? 'bg_arena' : op.id === 'subzero' ? 'bg_gelo' : op.id === 'liukang' ? 'bg_templo' : STAGES[A.idx % 3];
     this.show(null);
     Game.paused = false;
-    Game.start(A.ch, op, new HumanCtrl('solo', true), new CpuCtrl(Math.min(0.95, lv)), stage, w => this.arcadeResult(w));
+    Game.start(A.ch, op, new HumanCtrl('solo', true), new CpuCtrl(Math.min(0.95, lv), style), stage, w => this.arcadeResult(w));
     layout();
   },
   arcadeResult(w) {
@@ -1466,7 +1602,7 @@ const UI = {
     const stage = STAGES[(Math.random() * STAGES.length) | 0];
     this.show(null);
     Game.paused = false;
-    Game.start(c1, c2, new HumanCtrl(two ? 'p1' : 'solo', true), two ? new HumanCtrl('p2', false) : new CpuCtrl([0.06, 0.18, 0.36][this.diff]), stage, w => {
+    Game.start(c1, c2, new HumanCtrl(two ? 'p1' : 'solo', true), two ? new HumanCtrl('p2', false) : new CpuCtrl(({ easy: 0.06, normal: 0.14, hard: 0.2 })[ ['easy', 'normal', 'hard'][this.diff] ], ['easy', 'normal', 'hard'][this.diff]), stage, w => {
       Game.big = null;
       this.vsEnd = w;
       this.openSelect(s.mode);

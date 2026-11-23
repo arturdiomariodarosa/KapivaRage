@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <div id="app">
@@ -42,7 +42,7 @@
           <button class="mbtn" data-act="arcade">ARCADE <small>Torre até o Kapivotaro</small></button>
           <button class="mbtn" data-act="versus">1 x CPU <small>Escolha os dois lutadores</small></button>
           <button class="mbtn kb-only" data-act="2p">2 JOGADORES <small>Mesmo teclado</small></button>
-          <button class="mbtn" data-act="diff">DIFICULDADE: <b id="diff-lbl">FÁCIL</b></button>
+          <button class="mbtn" data-act="diff">DIFICULDADE <span id="diff-opts" class="diff-opts"><span data-d="0" class="on">Fácil</span><i>·</i><span data-d="1">Normal</span><i>·</i><span data-d="2">Difícil</span></span></button>
           <button class="mbtn" data-act="sound">SOM: <b id="sound-lbl">LIGADO</b></button>
           <button class="mbtn" data-act="help">CONTROLES E GOLPES</button>
         </nav>
@@ -144,7 +144,7 @@
   <div id="rotate-tip">Gire o celular para jogar na horizontal</div>
 </div>
 <div id="ctrl-hint">Mover: setas ou WASD · Golpe: J ou F · Forte: K ou G · Defesa: L ou Espaço</div>
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>
 
