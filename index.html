@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>KapivaRage</title>
+<link rel="icon" href="assets/emblem.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="cv" width="1280" height="720" aria-label="Arena de luta"></canvas>
+
+    <!-- Carregando -->
+    <section id="scr-loading" class="screen active">
+      <div class="load-box">
+        <img src="assets/emblem.webp" alt="" class="load-emblem">
+        <div class="load-txt">CARREGANDO <span id="load-pct">0%</span></div>
+        <div class="load-bar"><i id="load-fill"></i></div>
+      </div>
+    </section>
+
+    <!-- Título -->
+    <section id="scr-title" class="screen">
+      <img src="assets/title.webp" alt="KapivaRage" class="title-img">
+      <button class="press" id="press-start" type="button">JOGAR <small>TOQUE OU PRESSIONE ENTER</small></button>
+    </section>
+
+    <!-- Menu -->
+    <section id="scr-menu" class="screen">
+      <div class="menu-wrap">
+        <img src="assets/emblem.webp" alt="" class="menu-emblem">
+        <h1 class="menu-title">KAPIVARAGE</h1>
+        <p class="menu-hint">Mover: setas ou WASD · Golpe: J ou F · Forte: K ou G · Defesa: L ou Espaço · No celular, use os botões na tela</p>
+        <nav class="menu-list" data-nav>
+          <button class="mbtn" data-act="arcade">ARCADE <small>Torre até o Kapivotaro</small></button>
+          <button class="mbtn" data-act="versus">1 x CPU <small>Escolha os dois lutadores</small></button>
+          <button class="mbtn kb-only" data-act="2p">2 JOGADORES <small>Mesmo teclado</small></button>
+          <button class="mbtn" data-act="diff">DIFICULDADE: <b id="diff-lbl">FÁCIL</b></button>
+          <button class="mbtn" data-act="sound">SOM: <b id="sound-lbl">LIGADO</b></button>
+          <button class="mbtn" data-act="help">CONTROLES E GOLPES</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Seleção -->
+    <section id="scr-select" class="screen">
+      <h2 class="sel-head" id="sel-head">ESCOLHA SEU LUTADOR</h2>
+      <div class="sel-body">
+        <div class="sel-side left">
+          <img id="sel-p1-img" alt="">
+          <div class="sel-name" id="sel-p1-name"></div>
+          <div class="sel-moves" id="sel-p1-moves"></div>
+        </div>
+        <div class="sel-grid" id="sel-grid"></div>
+        <div class="sel-side right">
+          <img id="sel-p2-img" alt="">
+          <div class="sel-name" id="sel-p2-name"></div>
+          <div class="sel-moves" id="sel-p2-moves"></div>
+        </div>
+      </div>
+      <div class="sel-foot">
+        <button class="sbtn" id="sel-back">VOLTAR</button>
+        <span id="sel-hint">Setas para escolher, ENTER para confirmar</span>
+        <button class="sbtn hot" id="sel-ok">CONFIRMAR</button>
+      </div>
+    </section>
+
+    <!-- Torre -->
+    <section id="scr-ladder" class="screen">
+      <h2 class="lad-head">ESCOLHA SEU DESTINO</h2>
+      <div class="ladder" id="ladder"></div>
+      <div class="lad-vs" id="lad-vs"></div>
+    </section>
+
+    <!-- Pausa -->
+    <section id="scr-pause" class="screen overlay">
+      <div class="panel">
+        <h2>PAUSA</h2>
+        <nav class="menu-list" data-nav>
+          <button class="mbtn" data-act="resume">CONTINUAR</button>
+          <button class="mbtn" data-act="moves">LISTA DE GOLPES</button>
+          <button class="mbtn" data-act="sound">SOM: <b class="sound-lbl2">LIGADO</b></button>
+          <button class="mbtn" data-act="quit">SAIR PARA O MENU</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Golpes / ajuda -->
+    <section id="scr-help" class="screen overlay">
+      <div class="panel wide">
+        <h2 id="help-title">CONTROLES E GOLPES</h2>
+        <div class="help-body" id="help-body"></div>
+        <button class="mbtn" id="help-close">FECHAR</button>
+      </div>
+    </section>
+
+    <!-- Continuar -->
+    <section id="scr-continue" class="screen overlay">
+      <div class="panel">
+        <h2 class="red">VOCÊ PERDEU</h2>
+        <div class="cont-num" id="cont-num">9</div>
+        <nav class="menu-list" data-nav>
+          <button class="mbtn" data-act="continue">CONTINUAR</button>
+          <button class="mbtn" data-act="quit">DESISTIR</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Final -->
+    <section id="scr-ending" class="screen overlay">
+      <div class="panel wide ending">
+        <img id="end-img" alt="">
+        <div>
+          <h2 id="end-h">CAMPEÃO DO KAPIVARAGE</h2>
+          <p id="end-txt"></p>
+          <button class="mbtn" data-act="quit" id="end-btn">VOLTAR AO MENU</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <button id="btn-pause" class="hud-pause" aria-label="Pausar">Ⅱ</button>
+  <div id="touch" role="group" aria-label="Controles na tela">
+    <div class="pad" id="pad">
+      <div class="pad-ring"></div>
+      <span class="arr up">▲</span><span class="arr dn">▼</span><span class="arr lf">◀</span><span class="arr rt">▶</span>
+      <div class="pad-knob" id="pad-knob"></div>
+    </div>
+    <div class="btns">
+      <button class="tb tb-block" data-k="block">DEFESA</button>
+      <button class="tb tb-a" data-k="A">GOLPE</button>
+      <button class="tb tb-b" data-k="B">FORTE</button>
+    </div>
+  </div>
+
+  <div id="rotate-tip">Gire o celular para jogar na horizontal</div>
+</div>
+<div id="ctrl-hint">Mover: setas ou WASD · Golpe: J ou F · Forte: K ou G · Defesa: L ou Espaço</div>
+<script src="game.js?v=3"></script>
+</body>
+</html>
+
